@@ -41,7 +41,7 @@ Future<Expenses> createExpense(
     }
 
     var lastId =
-        'E0A${Random(chosenGroup.first.id).toString().substring(0, 4)}${chosenGroup.first.id}';
+        'E0A${Random(int.parse(lastExpenses!.expenseId!.substring(3, lastExpenses.expenseId!.length))).toString().substring(0, 4)}';
 
     return Expenses()
       ..expenseId = lastId
@@ -149,10 +149,14 @@ void showData() async {
   final isar = await Isar.open([GroupsSchema, UserSchema]);
   final groups = isar.collection<Groups>();
   final users = isar.collection<User>();
-  var pols = await groups.filter().idGreaterThan(0).findAll();
-  var pos = await users.filter().idGreaterThan(0).findAll();
-  logger.d(pols.first.groupId);
-  logger.d(pos.first.phoneNo);
+  var pols = groups.filter().idGreaterThan(0).findAllSync();
+  var pos = users.filter().idGreaterThan(0).findAllSync();
+  if (pols.isNotEmpty) {
+    logger.d(pols.first.groupId);
+  }
+  if (pos.isNotEmpty) {
+    logger.d(pos.first.phoneNo);
+  }
 }
 
 void removeAllRecords() async {

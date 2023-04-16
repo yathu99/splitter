@@ -12,9 +12,9 @@ class PieChart extends StatefulWidget {
 
 class _PieChartState extends State<PieChart> {
   late List<PieDisplayGroupData> _chartData;
-  late int totalPercentCalVal;
-  int normalData(List<PieDisplayGroupData> expenseList) {
-    int total = 0;
+  late double totalPercentCalVal;
+  double normalData(List<PieDisplayGroupData> expenseList) {
+    double total = 0;
     for (int i = 0; i < expenseList.length; i++) {
       total += expenseList[i].value;
     }

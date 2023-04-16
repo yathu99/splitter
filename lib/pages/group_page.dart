@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:splitter/components/expense_tile.dart';
 import 'package:splitter/components/pie_chart_tile.dart';
+import 'package:splitter/models/isar_models.dart';
 import 'package:splitter/models/pie_data.dart';
 import 'package:splitter/pages/members_page.dart';
 
@@ -9,48 +10,34 @@ List<PieDisplayGroupData> pieChartsValue = [];
 
 var logger = Logger();
 
-var expenses = [
-  {
-    'expenseName': 'Food',
-    'expenseAmount': '250',
-    'expenseLocation': 'Sao Paulo, USA',
-    'expenseTimeStamp': '10/04/2023\n13:01'
-  },
-  {
-    'expenseName': 'Books',
-    'expenseAmount': '600',
-    'expenseLocation': '',
-    'expenseTimeStamp': '10.04.2023T11:13:0004Z'
-  },
-  {
-    'expenseName': 'Parking',
-    'expenseAmount': '30',
-    'expenseLocation': '',
-    'expenseTimeStamp': '10.04.2023T20:45:0004Z'
-  },
-];
+late List<Expenses> expenses;
 
-List<PieDisplayGroupData> groupDataEval(List expenseList) {
+List<PieDisplayGroupData> groupDataEval(List<Expenses> expenseList) {
   late List displayExpensesPie = [];
   for (int i = 0; i < expenseList.length; i++) {
-    displayExpensesPie.add(PieDisplayGroupData(expenseList[i]['expenseName'],
-        int.parse(expenseList[i]['expenseAmount'])));
+    displayExpensesPie.add(PieDisplayGroupData(
+        expenseList[i].expenseName!, expenseList[i].expenseAmount!));
   }
 
   return displayExpensesPie.cast<PieDisplayGroupData>();
 }
 
-String propertyEval(Map<String, String> map, String property) {
-  try {
-    return map[property] ??= 'NO Data';
-  } catch (exception) {
-    logger.d('Error encountered --> \n $exception');
-    return 'Data Not available';
-  }
+// String propertyEval(Expenses map, String property) {
+//   try {
+//     return map. ??= 'NO Data';
+//   } catch (exception) {
+//     logger.d('Error encountered --> \n $exception');
+//     return 'Data Not available';
+//   }
+// }
+
+void getExpenses(Groups group) async {
+  expenses = group.expenses!;
 }
 
 class GroupPage extends StatefulWidget {
-  const GroupPage({super.key});
+  const GroupPage({super.key, required this.group});
+  final Groups group;
   @override
   State<GroupPage> createState() => _GroupPageState();
 }
@@ -65,6 +52,7 @@ class _GroupPageState extends State<GroupPage> {
   @override
   void initState() {
     super.initState();
+    getExpenses(widget.group);
     setState(() {
       pieChartsValue = groupDataEval(expenses);
     });
@@ -82,7 +70,7 @@ class _GroupPageState extends State<GroupPage> {
               });
             },
             icon: const Icon(Icons.keyboard_backspace)),
-        title: const Text('Group 1'),
+        title: Text(widget.group.groupName!),
         actions: [
           IconButton(
             onPressed: () {
@@ -94,8 +82,8 @@ class _GroupPageState extends State<GroupPage> {
           ),
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.group_add),
-            tooltip: 'Add Member',
+            icon: const Icon(Icons.monetization_on),
+            tooltip: 'Add New Expense',
           ),
           IconButton(
             onPressed: () {
@@ -157,12 +145,11 @@ class _GroupPageState extends State<GroupPage> {
             child: ListView.builder(
               itemCount: expenses.length,
               itemBuilder: (context, index) => ExpenseTile(
-                  expenseName: propertyEval(expenses[index], 'expenseName'),
-                  expenseAmount: propertyEval(expenses[index], 'expenseAmount'),
-                  expenseLocation:
-                      propertyEval(expenses[index], 'expenseLocation'),
+                  expenseName: expenses[index].expenseName!,
+                  expenseAmount: expenses[index].expenseAmount.toString(),
+                  expenseLocation: expenses[index].expenseLocation!,
                   expenseTimeStamp:
-                      propertyEval(expenses[index], 'expenseTimeStamp')),
+                      expenses[index].expenseTimestamp.toString()),
             ),
           )),
         ],

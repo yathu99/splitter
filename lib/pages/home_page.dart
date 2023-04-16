@@ -24,6 +24,7 @@ void createNewGroup(String newGroupName) async {
   FocusManager.instance.primaryFocus?.unfocus();
   final newGroup = await createGroup(isar, newGroupName);
   addGroup(isar, newGroup);
+
   groupNames!.add(newGroup);
 }
 
@@ -84,6 +85,7 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.add),
             tooltip: 'New Group',
             onPressed: () {
+              valueText = '';
               showDialog(
                 context: context,
                 builder: (context) {
@@ -129,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                   child: ListView.builder(
                       itemCount: groupNames?.length,
                       itemBuilder: (context, index) => GroupTile(
-                            groupName: groupNames![index].groupName!,
+                            group: groupNames![index],
                           )),
                 )
         ],
