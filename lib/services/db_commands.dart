@@ -1,34 +1,170 @@
+import 'dart:math';
+import 'package:splitter/models/expense.dart';
 import 'package:splitter/models/isar_models.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
+import 'package:splitter/pages/home_page.dart';
 
 var logger = Logger();
 
-/*
-Future<Isar> openIsarDB() async {
-  return await Isar.open(
-      [GroupsSchema, TempSavedContactSchema, SavedContactSchema, UserSchema]);
+Future<Groups> createGroup(Isar isar, String groupName) async {
+  final groups = isar.collection<Groups>();
+
+  var lastGroup = groups.where(sort: Sort.desc).findFirstSync();
+
+  var lastId =
+      'G0A${Random(lastGroup!.id).toString().substring(0, 4)}${lastGroup.id}';
+
+  //LastID to be generated from server
+
+  final groupFormed = Groups()
+    ..groupId = lastId
+    ..groupName = groupName
+    ..members = []
+    ..expenses = [];
+
+  return groupFormed;
 }
 
-void showData() async {
-  final isar = await Isar.open(
-      [GroupsSchema, TempSavedContactSchema, SavedContactsSchema]);
+Future<Expenses> createExpense(
+    Isar isar, Group group, String newExpenseName, String newLocation) async {
   final groups = isar.collection<Groups>();
-  var pols = await groups.filter().groupNameEndsWith('2').findAll();
-  logger.d(pols.first.groupId);
+  try {
+    var chosenGroup =
+        groups.filter().groupIdEqualTo(group.groupId).findAllSync();
+    var allExpenses = chosenGroup.first.expenses;
+    var lastExpenses = chosenGroup.first.expenses?.last;
+    for (int i = 0; i < allExpenses!.length; i += 1) {
+      if (allExpenses[i].expenseName == newExpenseName) {
+        throw Exception('Expense with existing name exists');
+      }
+    }
+
+    var lastId =
+        'E0A${Random(chosenGroup.first.id).toString().substring(0, 4)}${chosenGroup.first.id}';
+
+    return Expenses()
+      ..expenseId = lastId
+      ..expenseName = newExpenseName
+      ..expenseAmount = 0
+      ..expenseTimestamp = DateTime.now()
+      ..expenseLocation = newLocation
+      ..expenseMembers = []
+      ..expenseDistribution;
+  } catch (e) {
+    logger.e('Unable to create new Expense by name of $newExpenseName \n $e');
+    throw ('Cannot create New Expense');
+  }
+}
+
+void changeGroupName(Isar isar, Groups group, String newName) async {
+  final groups = isar.collection<Groups>();
+  try {
+    await isar.writeTxn(() async {
+      var fetchedGroup = groups.getSync(group.id);
+      fetchedGroup?.groupName = newName;
+      groups.put(fetchedGroup!);
+    });
+    logger.i('Changed ${group.groupId} name to ${group.groupName} from DB');
+  } catch (e) {
+    logger.e(
+        'Failed to Changed ${group.groupId} name to ${group.groupName} from DB');
+  }
+}
+
+void addMember(Isar isar, Groups group, User user) async {
+  final groups = isar.collection<Groups>();
+  var fetchedGroup = groups.getSync(group.id);
+  fetchedGroup?.members?.add(user.userId!);
+  groups.put(fetchedGroup!);
+}
+
+void removeMember(Isar isar, Groups group, User user) async {
+  final groups = isar.collection<Groups>();
+  try {
+    await isar.writeTxn(() async {
+      var fetchedGroup = groups.getSync(group.id);
+      fetchedGroup?.members?.remove(user.userId!);
+      groups.put(fetchedGroup!);
+    });
+    logger.i('Removed $user from DB');
+  } catch (e) {
+    logger.e('Failed to remove $user from DB');
+  }
+}
+
+void addExpense(Isar isar, Groups group, Expenses expense) async {
+  final groups = isar.collection<Groups>();
+  try {
+    await isar.writeTxn(() async {
+      var fetchedGroup = groups.getSync(group.id);
+      fetchedGroup?.expenses?.add(expense);
+      groups.put(fetchedGroup!);
+    });
+    logger.i('Added ${expense.expenseName} from DB');
+  } catch (e) {
+    logger.e('Failed to Add ${expense.expenseName} from DB');
+  }
+}
+
+void removeExpense(Isar isar, Groups group, Expenses expense) async {
+  final groups = isar.collection<Groups>();
+  try {
+    await isar.writeTxn(() async {
+      var fetchedGroup = groups.getSync(group.id);
+      fetchedGroup?.expenses?.remove(expense);
+      groups.put(fetchedGroup!);
+    });
+    logger.i('Added ${expense.expenseName} from DB');
+  } catch (e) {
+    logger.e('Failed to remove ${expense.expenseName} from DB');
+  }
 }
 
 void addGroup(Isar isar, Groups group) async {
   final groups = isar.collection<Groups>();
-  await isar.writeTxn(() async {
-    await groups.put(group);
-  });
+  try {
+    await isar.writeTxn(() async {
+      await groups.put(group);
+    });
+    logger.i('Added ${group.groupId} from DB');
+  } catch (e) {
+    logger.e('Failed to add ${group.groupId} from DB');
+  }
 }
 
-void addMemberToGroup(Isar isar, Groups group, User member) async {
+void deleteGroup(Isar isar, Groups group) async {
+  try {
+    final groups = isar.collection<Groups>();
+    await isar.writeTxn(() async {
+      groups.delete(group.id);
+    });
+    logger.i('Deleted ${group.groupId} from DB');
+  } catch (e) {
+    logger.e('Failed to delete ${group.groupId} from DB \n $e');
+  }
+}
+
+void showData() async {
+  final isar = await Isar.open([GroupsSchema, UserSchema]);
   final groups = isar.collection<Groups>();
-  var dataToChange = groups.filter().groupIdEqualTo(group.groupId);
-}*/
+  final users = isar.collection<User>();
+  var pols = await groups.filter().idGreaterThan(0).findAll();
+  var pos = await users.filter().idGreaterThan(0).findAll();
+  logger.d(pols.first.groupId);
+  logger.d(pos.first.phoneNo);
+}
+
+void removeAllRecords() async {
+  final isar = await Isar.open([GroupsSchema, UserSchema]);
+  final groups = isar.collection<Groups>();
+  final users = isar.collection<User>();
+
+  await isar.writeTxn(() async {
+    await groups.filter().idGreaterThan(0).deleteAll();
+    await users.filter().idGreaterThan(0).deleteAll();
+  });
+}
 
 void dbInitialInsertion() async {
   final isar = await Isar.open([GroupsSchema, UserSchema]);
@@ -54,7 +190,7 @@ void dbInitialInsertion() async {
   final expenseObj = Expenses()
     ..expenseId = 'E0A00001'
     ..expenseName = 'Food'
-    ..expenseAmount = '120'
+    ..expenseAmount = 120
     ..expenseTimestamp = DateTime.now()
     ..expenseLocation = 'Sau Paulo'
     ..expenseMembers = [userObj.userId!, userObj.userId!]
@@ -63,7 +199,7 @@ void dbInitialInsertion() async {
   final expenseObj1 = Expenses()
     ..expenseId = 'E0A00002'
     ..expenseName = 'Books'
-    ..expenseAmount = '400'
+    ..expenseAmount = 400
     ..expenseTimestamp = DateTime.now()
     ..expenseLocation = 'Smriti Garden'
     ..expenseMembers = [userObj1.userId!]
@@ -72,7 +208,7 @@ void dbInitialInsertion() async {
   final expenseObj2 = Expenses()
     ..expenseId = 'E0A00003'
     ..expenseName = 'Parking'
-    ..expenseAmount = '15'
+    ..expenseAmount = 15
     ..expenseTimestamp = DateTime.now()
     ..expenseLocation = 'Boji Temple'
     ..expenseMembers = [userObj2.userId!]
@@ -98,8 +234,6 @@ void dbInitialInsertion() async {
     await groups.put(grpDataObj);
     await groups.put(grpDataObj1);
   });
-
-  await isar.writeTxn(() async {});
 
   //final favorites = await groups.get(1);
 }

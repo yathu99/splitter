@@ -6,7 +6,7 @@ import '../models/isar_models.dart';
 import '../services/db_commands.dart';
 
 var logger = Logger();
-final isar = Isar.openSync([GroupsSchema]);
+final isar = Isar.openSync([GroupsSchema, UserSchema]);
 List<Groups>? groupNames;
 
 class HomePage extends StatefulWidget {
@@ -20,16 +20,25 @@ Future<List<Groups>> generateInstancesFromDB() async {
   return await isar.collection<Groups>().where().findAll();
 }
 
+void createNewGroup(String newGroupName) async {
+  FocusManager.instance.primaryFocus?.unfocus();
+  final newGroup = await createGroup(isar, newGroupName);
+  addGroup(isar, newGroup);
+  groupNames!.add(newGroup);
+}
+
 class _HomePageState extends State<HomePage> {
   bool groupsLoading = true;
   @override
   void initState() {
-    dbInitialInsertion();
-    //showData();
+    //removeAllRecords();
+    //dbInitialInsertion();
+    showData();
     generateInstancesFromDB().whenComplete(() async {
       groupNames = await generateInstancesFromDB();
       setState(() {
         groupsLoading = false;
+        //logger.d(groupsLoading);
       });
     });
     super.initState();
@@ -40,6 +49,36 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        backgroundColor: Colors.amber[300],
+        width: 300,
+        child: Center(
+            child: Column(children: const [
+          SizedBox(
+            height: 120,
+            child: Center(child: Text('logo')),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 18.0),
+            child: Divider(
+              height: 10,
+              thickness: 5,
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.person),
+            title: Text('Profile'),
+          ),
+          ListTile(
+            leading: Icon(Icons.perm_contact_cal_rounded),
+            title: Text('Saved Contacts'),
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('Settings'),
+          ),
+        ])),
+      ),
       appBar: AppBar(title: const Text('Splitter'), actions: [
         IconButton(
             icon: const Icon(Icons.add),
@@ -58,8 +97,7 @@ class _HomePageState extends State<HomePage> {
                       },
                       onEditingComplete: () {
                         setState(() {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          //groupNames.add(valueText);
+                          createNewGroup(valueText);
                           Navigator.pop(context);
                         });
                       },
@@ -73,8 +111,7 @@ class _HomePageState extends State<HomePage> {
                           child: const Text('OK'),
                           onPressed: () {
                             setState(() {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              //groupNames.add(valueText);
+                              createNewGroup(valueText);
                               Navigator.pop(context);
                             });
                           })

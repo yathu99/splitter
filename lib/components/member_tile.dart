@@ -8,7 +8,7 @@ class MemberTile extends StatefulWidget {
 }
 
 class _MemberTileState extends State<MemberTile> {
-  late bool valueChange;
+  late bool valueChange = true;
 
   @override
   void initState() {

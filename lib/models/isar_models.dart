@@ -4,6 +4,8 @@ part 'isar_models.g.dart';
 
 @collection
 class Groups {
+  //Groups(this.groupId, this.groupName, this.members, this.expenses);
+
   Id id = Isar.autoIncrement;
   String? groupId;
   String? groupName;
@@ -52,7 +54,7 @@ class Expenses {
 
   String? expenseId;
   String? expenseName;
-  String? expenseAmount;
+  double? expenseAmount;
   DateTime? expenseTimestamp;
   String? expenseLocation;
   List<String>? expenseMembers;

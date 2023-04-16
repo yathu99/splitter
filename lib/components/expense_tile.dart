@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 class ExpenseTile extends StatefulWidget {
   ExpenseTile(
@@ -17,6 +18,8 @@ class ExpenseTile extends StatefulWidget {
   State<ExpenseTile> createState() => _ExpenseTileState();
 }
 
+var logger = Logger();
+
 class _ExpenseTileState extends State<ExpenseTile> {
   late Color expandedBackground = Colors.grey.shade800;
   late Color expandedtileBackground = Colors.grey.shade600;
@@ -31,8 +34,11 @@ class _ExpenseTileState extends State<ExpenseTile> {
       title: Text(widget.expenseName),
       subtitle: Text('${widget.expenseAmount}\$'),
       controlAffinity: ListTileControlAffinity.trailing,
-      trailing:
-          IconButton(onPressed: () {}, icon: const Icon(Icons.group_outlined)),
+      trailing: IconButton(
+          onPressed: () {
+            logger.d("Changing members of expense");
+          },
+          icon: const Icon(Icons.group_outlined)),
       backgroundColor: Colors.deepPurple[900],
       children: [
         Container(

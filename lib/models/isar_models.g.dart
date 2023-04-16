@@ -2885,7 +2885,7 @@ const ExpensesSchema = Schema(
     r'expenseAmount': PropertySchema(
       id: 0,
       name: r'expenseAmount',
-      type: IsarType.string,
+      type: IsarType.double,
     ),
     r'expenseDistribution': PropertySchema(
       id: 1,
@@ -2931,12 +2931,6 @@ int _expensesEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  {
-    final value = object.expenseAmount;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
   {
     final value = object.expenseDistribution;
     if (value != null) {
@@ -2984,7 +2978,7 @@ void _expensesSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.expenseAmount);
+  writer.writeDouble(offsets[0], object.expenseAmount);
   writer.writeObject<ExpenseDistribtion>(
     offsets[1],
     allOffsets,
@@ -3005,7 +2999,7 @@ Expenses _expensesDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Expenses(
-    expenseAmount: reader.readStringOrNull(offsets[0]),
+    expenseAmount: reader.readDoubleOrNull(offsets[0]),
     expenseDistribution: reader.readObjectOrNull<ExpenseDistribtion>(
       offsets[1],
       ExpenseDistribtionSchema.deserialize,
@@ -3028,7 +3022,7 @@ P _expensesDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 1:
       return (reader.readObjectOrNull<ExpenseDistribtion>(
         offset,
@@ -3071,55 +3065,55 @@ extension ExpensesQueryFilter
   }
 
   QueryBuilder<Expenses, Expenses, QAfterFilterCondition> expenseAmountEqualTo(
-    String? value, {
-    bool caseSensitive = true,
+    double? value, {
+    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'expenseAmount',
         value: value,
-        caseSensitive: caseSensitive,
+        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<Expenses, Expenses, QAfterFilterCondition>
       expenseAmountGreaterThan(
-    String? value, {
+    double? value, {
     bool include = false,
-    bool caseSensitive = true,
+    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'expenseAmount',
         value: value,
-        caseSensitive: caseSensitive,
+        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<Expenses, Expenses, QAfterFilterCondition> expenseAmountLessThan(
-    String? value, {
+    double? value, {
     bool include = false,
-    bool caseSensitive = true,
+    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'expenseAmount',
         value: value,
-        caseSensitive: caseSensitive,
+        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<Expenses, Expenses, QAfterFilterCondition> expenseAmountBetween(
-    String? lower,
-    String? upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
+    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -3128,78 +3122,7 @@ extension ExpensesQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Expenses, Expenses, QAfterFilterCondition>
-      expenseAmountStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'expenseAmount',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Expenses, Expenses, QAfterFilterCondition> expenseAmountEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'expenseAmount',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Expenses, Expenses, QAfterFilterCondition> expenseAmountContains(
-      String value,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'expenseAmount',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Expenses, Expenses, QAfterFilterCondition> expenseAmountMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'expenseAmount',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Expenses, Expenses, QAfterFilterCondition>
-      expenseAmountIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'expenseAmount',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Expenses, Expenses, QAfterFilterCondition>
-      expenseAmountIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'expenseAmount',
-        value: '',
+        epsilon: epsilon,
       ));
     });
   }
