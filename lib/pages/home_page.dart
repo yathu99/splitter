@@ -6,7 +6,7 @@ import '../models/isar_models.dart';
 import '../services/db_commands.dart';
 
 var logger = Logger();
-final isar = Isar.openSync([GroupsSchema, UserSchema]);
+//final isar = Isar.openSync([GroupsSchema, UserSchema]);
 List<Groups>? groupNames;
 
 class HomePage extends StatefulWidget {
@@ -22,8 +22,8 @@ Future<List<Groups>> generateInstancesFromDB() async {
 
 void createNewGroup(String newGroupName) async {
   FocusManager.instance.primaryFocus?.unfocus();
-  final newGroup = await createGroup(isar, newGroupName);
-  addGroup(isar, newGroup);
+  final newGroup = await createGroup(newGroupName);
+  addGroup(newGroup);
 
   groupNames!.add(newGroup);
 }
@@ -100,6 +100,7 @@ class _HomePageState extends State<HomePage> {
                       onEditingComplete: () {
                         setState(() {
                           createNewGroup(valueText);
+                          _textFieldController.clear();
                           Navigator.pop(context);
                         });
                       },
@@ -108,12 +109,21 @@ class _HomePageState extends State<HomePage> {
                     ),
                     actions: [
                       MaterialButton(
+                          color: Colors.red,
+                          textColor: Colors.white,
+                          child: const Text('CANCEL'),
+                          onPressed: () {
+                            _textFieldController.clear();
+                            Navigator.pop(context);
+                          }),
+                      MaterialButton(
                           color: Colors.green,
                           textColor: Colors.white,
                           child: const Text('OK'),
                           onPressed: () {
                             setState(() {
                               createNewGroup(valueText);
+                              _textFieldController.clear();
                               Navigator.pop(context);
                             });
                           })

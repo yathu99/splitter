@@ -4,7 +4,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 class PieChart extends StatefulWidget {
   PieChart({super.key, required this.chartData});
-  late List chartData = [];
+  List chartData = [];
 
   @override
   State<PieChart> createState() => _PieChartState();

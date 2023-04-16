@@ -36,7 +36,7 @@ class _MemberTileState extends State<MemberTile> {
               }),
           Text(
             widget.username,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ],
       ),

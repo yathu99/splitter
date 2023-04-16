@@ -3,11 +3,10 @@ import 'package:splitter/models/expense.dart';
 import 'package:splitter/models/isar_models.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
-import 'package:splitter/pages/home_page.dart';
 
 var logger = Logger();
-
-Future<Groups> createGroup(Isar isar, String groupName) async {
+final isar = Isar.openSync([GroupsSchema, UserSchema]);
+Future<Groups> createGroup(String groupName) async {
   final groups = isar.collection<Groups>();
 
   var lastGroup = groups.where(sort: Sort.desc).findFirstSync();
@@ -27,7 +26,7 @@ Future<Groups> createGroup(Isar isar, String groupName) async {
 }
 
 Future<Expenses> createExpense(
-    Isar isar, Group group, String newExpenseName, String newLocation) async {
+    Group group, String newExpenseName, String newLocation) async {
   final groups = isar.collection<Groups>();
   try {
     var chosenGroup =
@@ -57,7 +56,7 @@ Future<Expenses> createExpense(
   }
 }
 
-void changeGroupName(Isar isar, Groups group, String newName) async {
+void changeGroupName(Groups group, String newName) async {
   final groups = isar.collection<Groups>();
   try {
     await isar.writeTxn(() async {
@@ -72,14 +71,14 @@ void changeGroupName(Isar isar, Groups group, String newName) async {
   }
 }
 
-void addMember(Isar isar, Groups group, User user) async {
+void addMember(Groups group, User user) async {
   final groups = isar.collection<Groups>();
   var fetchedGroup = groups.getSync(group.id);
   fetchedGroup?.members?.add(user.userId!);
   groups.put(fetchedGroup!);
 }
 
-void removeMember(Isar isar, Groups group, User user) async {
+void removeMember(Groups group, User user) async {
   final groups = isar.collection<Groups>();
   try {
     await isar.writeTxn(() async {
@@ -93,7 +92,7 @@ void removeMember(Isar isar, Groups group, User user) async {
   }
 }
 
-void addExpense(Isar isar, Groups group, Expenses expense) async {
+void addExpense(Groups group, Expenses expense) async {
   final groups = isar.collection<Groups>();
   try {
     await isar.writeTxn(() async {
@@ -107,7 +106,7 @@ void addExpense(Isar isar, Groups group, Expenses expense) async {
   }
 }
 
-void removeExpense(Isar isar, Groups group, Expenses expense) async {
+void removeExpense(Groups group, Expenses expense) async {
   final groups = isar.collection<Groups>();
   try {
     await isar.writeTxn(() async {
@@ -121,7 +120,7 @@ void removeExpense(Isar isar, Groups group, Expenses expense) async {
   }
 }
 
-void addGroup(Isar isar, Groups group) async {
+void addGroup(Groups group) async {
   final groups = isar.collection<Groups>();
   try {
     await isar.writeTxn(() async {
@@ -133,7 +132,7 @@ void addGroup(Isar isar, Groups group) async {
   }
 }
 
-void deleteGroup(Isar isar, Groups group) async {
+void deleteGroup(Groups group) async {
   try {
     final groups = isar.collection<Groups>();
     await isar.writeTxn(() async {

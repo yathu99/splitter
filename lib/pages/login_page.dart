@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:splitter/services/db_commands.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -43,7 +42,8 @@ Future<Album> createRequest(String user) async {
             'data': user,
           }))
       .catchError((oneError) {
-    print(oneError.toString());
+    logger.e(oneError.toString());
+    return '';
   });
 
   if (response.statusCode == 201) {

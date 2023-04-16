@@ -5,11 +5,11 @@ import 'package:splitter/components/pie_chart_tile.dart';
 import 'package:splitter/models/isar_models.dart';
 import 'package:splitter/models/pie_data.dart';
 import 'package:splitter/pages/members_page.dart';
+import 'package:splitter/services/db_commands.dart';
 
 List<PieDisplayGroupData> pieChartsValue = [];
 
 var logger = Logger();
-
 late List<Expenses> expenses;
 
 List<PieDisplayGroupData> groupDataEval(List<Expenses> expenseList) {
@@ -22,15 +22,6 @@ List<PieDisplayGroupData> groupDataEval(List<Expenses> expenseList) {
   return displayExpensesPie.cast<PieDisplayGroupData>();
 }
 
-// String propertyEval(Expenses map, String property) {
-//   try {
-//     return map. ??= 'NO Data';
-//   } catch (exception) {
-//     logger.d('Error encountered --> \n $exception');
-//     return 'Data Not available';
-//   }
-// }
-
 void getExpenses(Groups group) async {
   expenses = group.expenses!;
 }
@@ -41,12 +32,6 @@ class GroupPage extends StatefulWidget {
   @override
   State<GroupPage> createState() => _GroupPageState();
 }
-/*
-void showGroupValues(List<PieDisplayGroupData> pieDatar) {
-  for (int i = 0; i < pieDatar.length; i++) {
-    logger.d(pieDatar[i].expenseName.toString() + pieDatar[i].value.toString());
-  }
-}*/
 
 class _GroupPageState extends State<GroupPage> {
   @override
@@ -87,10 +72,11 @@ class _GroupPageState extends State<GroupPage> {
           ),
           IconButton(
             onPressed: () {
+              deleteGroup(widget.group);
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.close),
-            tooltip: 'Discard Group',
+            icon: const Icon(Icons.delete),
+            tooltip: 'Delete Group',
           ),
         ],
       ),
@@ -108,7 +94,7 @@ class _GroupPageState extends State<GroupPage> {
                   width: 5,
                   color: Colors.black,
                 ),
-                Container(
+                SizedBox(
                   width: 80,
                   child: Center(
                     child: Column(
